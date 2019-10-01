@@ -5,26 +5,28 @@ export class SearchPostsControl extends Component {
     constructor(props) {
         super(props);
         this.state = {
-			selectedButtons: [],
+            selectedButtons: [],
             resultObjects: [],
             resultButtons: []
         };
         this.buildResultButtons = this.buildResultButtons.bind(this);
-		this.changePostType = this.changePostType.bind(this);
-		this.updateSelectedIds = this.updateSelectedIds.bind(this);
+        this.buildSelectedButtons = this.buildSelectedButtons.bind(this);
+        this.changePostType = this.changePostType.bind(this);
+        this.getStartingData = this.getStartingData.bind(this);
         this.searchFor = this.searchFor.bind(this);
+        this.updateSelectedIds = this.updateSelectedIds.bind(this);
     }
  
     changePostType(newType) {
         // Clear postIds, update postType Attribute
         let { setAttributes } = this.props;
-        setAttributes({ postType: newType });
+        setAttributes({ postIds: [], postType: newType });
         // Clear state and run a new search
-        this.setState({ resultObjects: [], resultButtons: []}, this.searchFor(newType, ''));
+        this.setState({ selectedButtons: [], resultObjects: [], resultButtons: []}, this.searchFor(newType, ''));
     }
  
     searchFor(searchPostType = '', keyword = '') {
-        let { attributes: { postType } } = this.props;
+        let { attributes: { postIds, postType } } = this.props;
         let finalPostType = postType;
         // If a post type was explicitly passed to the function, use that instead
         if(searchPostType != '') {
@@ -40,22 +42,64 @@ export class SearchPostsControl extends Component {
             path = '/wp/v2/' + finalPostType + '?exclude=' + currentId;
         }
         wp.apiFetch( { path: path } ).then( ( posts ) => {
+            for(var i = 0; i < posts.length; i++) {
+                // if this post ID is in selectedIds state, set checked to true
+                posts[i].checked = false;
+                for(var j = 0; j < postIds.length; j++) {
+                    if(posts[i].id === postIds[j]) {
+                        posts[i].checked = true;
+                        break;
+                    }
+                }
+            }
             this.setState({ resultObjects: posts });
         }).then( () => this.buildResultButtons() );
+    }
+ 
+    buildSelectedButtons() {
+        let { attributes: { postIds, postType } } = this.props;
+        // If post IDs are selected, get their titles and show buttons
+        if(postIds.length > 0) {
+            let selectionButtons = postIds.map(async(item) => {
+                let path = '/wp/v2/' + postType + '/' + item;
+                return wp.apiFetch( { path: path } ).then( (post) => {
+                    return(
+                        <Button
+                            isDefault
+                            isDestructive
+                            onClick={ () => this.updateSelectedIds(item, false) }
+                        >
+                            { post.title.rendered }
+                        </Button>
+                    );
+                });
+            });
+            Promise.all(selectionButtons).then((finalButtons) =>
+                this.setState({ selectedButtons: finalButtons })
+            );
+        }
+        // If no post IDs, show paragraph
+        else {
+            this.setState({ selectedButtons: <p>None selected</p> });
+        }
     }
  
     buildResultButtons() {
         let { setAttributes } = this.props;
         let resultButtons = this.state.resultObjects.map(function(item, ind) {
-			let isChecked = item.checked;
-			// Save the opposite value for onClick
-			// Must have default true, because if nothing is selected, it's false, and true is what it should change to
-			let toCheck = true;
-			if(isChecked == true) {
-				toCheck = false;
-			}
+            // Determine whether this item is checked
+            let isChecked = item.checked;
+            // Save the opposite value for onClick
+            // Must have default true, because if nothing is selected, it's false, and true is what it should change to
+            let toCheck = true;
+            if(isChecked == true) {
+                toCheck = false;
+            }
             return(
-                <MenuItem id={ item.id } data-ischecked={ isChecked } onClick={ () => this.updateSelectedIds(parseInt(event.target.id), toCheck) }
+                <MenuItem
+                    id={ item.id }
+                    data-ischecked={ isChecked }
+                    onClick={ () => this.updateSelectedIds(parseInt(event.target.id), toCheck) }
                 >
                     { item.title.rendered }
                 </MenuItem>
@@ -90,6 +134,7 @@ export class SearchPostsControl extends Component {
         }
         // Save resultObjects to state, and then rebuild result buttons
         this.setState({ resultObjects: posts }, function() {
+            this.buildSelectedButtons();
             this.buildResultButtons();
         });
     }
@@ -99,6 +144,7 @@ export class SearchPostsControl extends Component {
     }
  
     getStartingData() {
+        this.buildSelectedButtons();
         this.searchFor('');
     }
  
@@ -118,6 +164,7 @@ export class SearchPostsControl extends Component {
                         ] }
                         onChange={ (val) => { this.changePostType(val) } }
                     />
+                    { this.state.selectedButtons }
                 </div>
                 <div className='posts-search'>
                     <h2>Add to selections:</h2>
