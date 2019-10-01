@@ -18,10 +18,10 @@ export class SearchPostsControl extends Component {
         let { setAttributes } = this.props;
         setAttributes({ postType: newType });
         // Clear state and run a new search
-        this.setState({ resultObjects: [], resultButtons: []}, this.searchFor(newType));
+        this.setState({ resultObjects: [], resultButtons: []}, this.searchFor(newType, ''));
     }
  
-    searchFor(searchPostType = '') {
+    searchFor(searchPostType = '', keyword = '') {
         let { attributes: { postType } } = this.props;
         let finalPostType = postType;
         // If a post type was explicitly passed to the function, use that instead
@@ -30,7 +30,13 @@ export class SearchPostsControl extends Component {
         }
         // Make REST API call to get post objects - excluding current ID, but including the postType and keyword if present
         let currentId = wp.data.select('core/editor').getCurrentPostId();
-        let path = '/wp/v2/' + finalPostType + '?exclude=' + currentId;
+        let path;
+        if(keyword != '') {
+            path = '/wp/v2/' + finalPostType + '?search=' + keyword + '&exclude=' + currentId;
+ 
+        } else {
+            path = '/wp/v2/' + finalPostType + '?exclude=' + currentId;
+        }
         wp.apiFetch( { path: path } ).then( ( posts ) => {
             this.setState({ resultObjects: posts });
         }).then( () => this.buildResultButtons() );
@@ -59,7 +65,31 @@ export class SearchPostsControl extends Component {
     }
  
     updateSelectedIds(id, val) {
-        console.log(id + ' checked is ' + val);
+        let { attributes: { postIds } } = this.props;
+        let stateSelected = postIds;
+        // Update copy of selectedIds
+        if(val == true) {
+            stateSelected.push(id);
+        } else {
+            let idIndex = stateSelected.indexOf(id);
+            stateSelected.splice(idIndex, 1);
+        }
+        // Update copy of resultObjects
+        let posts = this.state.resultObjects;
+        for(var i = 0; i < posts.length; i++) {
+            // if this post ID is in attributes, set checked to true
+            posts[i].checked = false;
+            for(var j = 0; j < stateSelected.length; j++) {
+                if(posts[i].id === stateSelected[j]) {
+                    posts[i].checked = true;
+                    break;
+                }
+            }
+        }
+        // Save resultObjects to state, and then rebuild result buttons
+        this.setState({ resultObjects: posts }, function() {
+            this.buildResultButtons();
+        });
     }
  
     componentDidMount() {
@@ -72,6 +102,7 @@ export class SearchPostsControl extends Component {
  
     render() {
         let { attributes: { postType } } = this.props;
+        let label = 'Search for ' + postType + ' to display';
         return(
             <div className='search-posts-control'>
                 <div className='posts-selected'>
@@ -88,6 +119,11 @@ export class SearchPostsControl extends Component {
                 </div>
                 <div className='posts-search'>
                     <h2>Add to selections:</h2>
+                    <TextControl
+                        label={ label }
+                        type='search'
+                        onChange={ (val) => this.searchFor('', val) }
+                    />
                     <MenuGroup label='Search Results' className='posts-list' >
                         { this.state.resultButtons }
                     </MenuGroup>
