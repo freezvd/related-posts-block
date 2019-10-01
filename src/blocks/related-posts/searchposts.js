@@ -5,11 +5,13 @@ export class SearchPostsControl extends Component {
     constructor(props) {
         super(props);
         this.state = {
+			selectedButtons: [],
             resultObjects: [],
             resultButtons: []
         };
         this.buildResultButtons = this.buildResultButtons.bind(this);
-        this.changePostType = this.changePostType.bind(this);
+		this.changePostType = this.changePostType.bind(this);
+		this.updateSelectedIds = this.updateSelectedIds.bind(this);
         this.searchFor = this.searchFor.bind(this);
     }
  
@@ -45,13 +47,13 @@ export class SearchPostsControl extends Component {
     buildResultButtons() {
         let { setAttributes } = this.props;
         let resultButtons = this.state.resultObjects.map(function(item, ind) {
-            let isChecked = false;
-            // Save the opposite value for onClick
-            // Must have default true, because if nothing is selected, it's false, and true is what it should change to
-            let toCheck = true;
-            if(isChecked == true) {
-                toCheck = false;
-            }
+			let isChecked = item.checked;
+			// Save the opposite value for onClick
+			// Must have default true, because if nothing is selected, it's false, and true is what it should change to
+			let toCheck = true;
+			if(isChecked == true) {
+				toCheck = false;
+			}
             return(
                 <MenuItem id={ item.id } data-ischecked={ isChecked } onClick={ () => this.updateSelectedIds(parseInt(event.target.id), toCheck) }
                 >
