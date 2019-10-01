@@ -1,1 +1,32 @@
+div.related-block {
+  margin: 1em;
+  padding: 1em;
+  background: #ddd;
+  box-shadow: 0 0 1px #777; }
+
+div.related-posts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around; }
+
+div.related-post {
+  flex: 1 0 200px;
+  max-width: 200px;
+  max-height: 200px;
+  margin: .5em;
+  position: relative; }
+
+div.related-post span {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: .5em;
+  font-size: .8em;
+  line-height: 1em;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff; }
+
+div.related-post a:hover span, div.related-post a:focus span {
+  background: rgba(0, 50, 10, 0.8); }
 
