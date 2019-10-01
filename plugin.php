@@ -26,7 +26,30 @@ function my_register_related_block() {
     register_block_type('my/related-posts', array(
         'editor_script' => 'related-block',
         'editor_style' => 'related-block-edit-style',
-        'style' => 'related-block-style'
+        'style' => 'related-block-style',
+        'render_callback' => 'get_related_posts',
+        'attributes' => array(
+            'editMode' => array(
+                'type' => 'boolean',
+                'default' => true
+            ),
+            'postIds' => array(
+                'type' => 'array',
+                'default' => []
+            ),
+            'postType' => array(
+                'type' => 'string',
+                'default' => 'posts'
+            ),
+            'updated' => array(
+                'type' => 'string',
+                'default' => ''
+            )
+        )
     ));
+}
+ 
+function get_related_posts($attributes) {
+    return '<div>Front end view will be displayed here.</div>';
 }
 ?>
