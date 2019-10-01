@@ -64,33 +64,9 @@ export class SearchPostsControl extends Component {
         this.setState({ resultButtons: resultButtons }, setAttributes({ updated: timeNow }));
     }
  
-    updateSelectedIds(id, val) {
-        let { attributes: { postIds } } = this.props;
-        let stateSelected = postIds;
-        // Update copy of selectedIds
-        if(val == true) {
-            stateSelected.push(id);
-        } else {
-            let idIndex = stateSelected.indexOf(id);
-            stateSelected.splice(idIndex, 1);
-        }
-        // Update copy of resultObjects
-        let posts = this.state.resultObjects;
-        for(var i = 0; i < posts.length; i++) {
-            // if this post ID is in attributes, set checked to true
-            posts[i].checked = false;
-            for(var j = 0; j < stateSelected.length; j++) {
-                if(posts[i].id === stateSelected[j]) {
-                    posts[i].checked = true;
-                    break;
-                }
-            }
-        }
-        // Save resultObjects to state, and then rebuild result buttons
-        this.setState({ resultObjects: posts }, function() {
-            this.buildResultButtons();
-        });
-    }
+	updateSelectedIds(id, val) {
+		console.log(id + ' checked is ' + val);
+	}
  
     componentDidMount() {
         this.getStartingData();
