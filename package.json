@@ -1,0 +1,36 @@
+{
+  "name": "related-posts-block",
+  "version": "1.0.0",
+  "description": "A WordPress plugin that creates a Related Posts block with the ability to select either Posts or Pages, search by title or content, and server-side-render so the content is always current. A full tutorial for creating this block is available at https://sites.stmarytx.edu/webelaine/2019/09/30/building-a-related-posts-block-for-wordpress/",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack --mode development",
+    "build": "webpack --mode production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eshannon3/related-posts-block.git"
+  },
+  "author": "Elaine Shannon",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eshannon3/related-posts-block/issues"
+  },
+  "homepage": "https://github.com/eshannon3/related-posts-block#readme",
+  "devDependencies": {
+    "@babel/core": "^7.6.2",
+    "@babel/preset-env": "^7.6.2",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.6",
+    "css-loader": "^3.2.0",
+    "ignore-emit-webpack-plugin": "^2.0.2",
+    "mini-css-extract-plugin": "^0.8.0",
+    "node-sass": "^4.12.0",
+    "path": "^0.12.7",
+    "postcss-loader": "^3.0.0",
+    "postcss-preset-env": "^6.7.0",
+    "sass-loader": "^8.0.0",
+    "webpack": "^4.41.0",
+    "webpack-cli": "^3.3.9"
+  }
+}
